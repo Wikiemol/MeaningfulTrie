@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::rc::Rc;
 use std::rc::Weak;
 use std::mem::replace;
@@ -91,42 +92,42 @@ fn string_to_trie(text: &str, limit: Option<usize>) -> Rc<RefCell<Trie>> {
         children: vec![]
     }));
 
-    let mut current = vec![root.clone()];
+    let mut trie_positions = vec![root.clone()];
     let mut trie_depth: Vec<usize> = vec![0];
 
     for character in text.chars() {
-        let mut new_current: Vec<Rc<RefCell<Trie>>> = current.clone();
-        let mut to_delete: Vec<bool> = new_current.iter().map(|_| false).collect::<Vec<_>>();
+        let mut new_trie_positions: Vec<Rc<RefCell<Trie>>> = trie_positions.clone();
+        let mut to_delete: Vec<bool> = new_trie_positions.iter().map(|_| false).collect::<Vec<_>>();
         let mut c_trie = None; 
-        for (i, parent) in current.iter().enumerate() {
-            let mut matching = None;
+        for (i, parent) in trie_positions.iter().enumerate() {
+            let mut matching_idx_child = None;
             for (i, child) in parent.borrow().children.iter().enumerate() {
                 if child.borrow().data == Some(character) {
-                    matching = Some((i, child.clone()));
+                    matching_idx_child = Some((i, child.clone()));
                     break;
                 }
             }
-            match matching {
+            match matching_idx_child {
                 None => {
                     match c_trie {
                         None => {
-                            let local_c_trie = Rc::new(RefCell::new(Trie {
+                            let child = Rc::new(RefCell::new(Trie {
                                 data: Some(character),
                                 count: 1,
                                 parents: vec![],
                                 children: vec![]
                             }));
-                            c_trie = Some(local_c_trie.clone());
+                            c_trie = Some(child.clone());
 
-                            local_c_trie.borrow_mut().parents.push(Rc::downgrade(parent));
-                            parent.borrow_mut().children.push(local_c_trie.clone());
-                            let _ = replace(&mut new_current[i], local_c_trie.clone());
+                            child.borrow_mut().parents.push(Rc::downgrade(parent));
+                            parent.borrow_mut().children.push(child.clone());
+                            let _ = replace(&mut new_trie_positions[i], child.clone());
                         }
-                        Some(trie) => {
-                            trie.borrow_mut().parents.push(Rc::downgrade(parent));
-                            parent.borrow_mut().children.push(trie.clone());
+                        Some(child) => {
+                            child.borrow_mut().parents.push(Rc::downgrade(parent));
+                            parent.borrow_mut().children.push(child.clone());
                             let _ = replace(&mut to_delete[i], true);
-                            c_trie = Some(trie);
+                            c_trie = Some(child);
                         }
                     }
 
@@ -139,14 +140,14 @@ fn string_to_trie(text: &str, limit: Option<usize>) -> Rc<RefCell<Trie>> {
                     cloned_child.borrow_mut().parents.push(Rc::downgrade(parent)); 
 
                     let _ = replace(&mut (parent.borrow_mut().children[j]), cloned_child.clone());
-                    let _ = replace(&mut new_current[i], cloned_child.clone());
+                    let _ = replace(&mut new_trie_positions[i], cloned_child.clone());
                     trie_depth[i] += 1;
                 }
             }
         }
 
-        current = new_current;
-        current = current
+        trie_positions = new_trie_positions;
+        trie_positions = trie_positions
             .iter().zip(trie_depth.iter()).zip(to_delete.iter())
             // .filter(|(pointer, depth)| depth < 10)
             .filter(|((_, &depth), &to_delete)| depth <= limit.unwrap_or(usize::MAX) && !to_delete)
@@ -156,7 +157,7 @@ fn string_to_trie(text: &str, limit: Option<usize>) -> Rc<RefCell<Trie>> {
             .filter(|(&depth, &to_delete)| depth <= limit.unwrap_or(usize::MAX) && !to_delete)
             .map(|(&depth, _)| depth.clone())
             .collect::<Vec<_>>();
-        current.push(root.clone());
+        trie_positions.push(root.clone());
         trie_depth.push(0);
         // let new = current.borrow().children[current.borrow().children.len() - 1].clone();
         // current = new;
