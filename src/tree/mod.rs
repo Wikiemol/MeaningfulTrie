@@ -1,8 +1,134 @@
+use std::collections::HashMap;
+use std::collections::HashSet;
 use crate::lazy::LazySupplier;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::rc::Weak;
 use crate::lazy::Lazy;
+
+type NodeRef = usize;
+#[derive(Clone)]
+pub struct BiDirectionalTreeNode<T> {
+    pub value: T,
+    pub parents: HashSet<NodeRef>,
+    pub children: HashSet<NodeRef>,
+}
+
+pub struct BiDirectionalTree<T> {
+    nodes: Vec<BiDirectionalTreeNode<T>>,
+    reference_counts: HashMap<NodeRef, usize>,
+    pub root: NodeRef
+}
+
+pub enum EditNodeError {
+    NodeDeleted(NodeRef)
+}
+
+
+pub type EditNodeResult = Result<NodeRef, EditNodeError>;
+
+
+impl<T> BiDirectionalTree<T> {
+
+    pub fn new(value: T) -> BiDirectionalTree<T> {
+        BiDirectionalTree {
+            nodes: vec![BiDirectionalTreeNode {
+                value,
+                parents: HashSet::new(),
+                children: HashSet::new()
+            }],
+            reference_counts: HashMap::new(),
+            root: 0
+        }
+    }
+
+    #[inline(always)]
+    pub fn get_value_mut(&mut self, idx: NodeRef) -> &mut T {
+        &mut self.get_node_mut(idx).value
+    }
+
+    #[inline(always)]
+    pub fn get_value(&self, idx: NodeRef) -> &T {
+        &self.get_node(idx).value
+    }
+
+    #[inline(always)]
+    pub fn remove_child(&mut self, parent: NodeRef, child: NodeRef) {
+        self.get_node_mut(parent).children.remove(&child);
+        let child_node = self.get_node_mut(child);
+        child_node.parents.remove(&parent);
+
+        if child_node.parents.len() == 0 {
+            for grand_child in child_node.children.clone() {
+                self.remove_child(child, grand_child);
+            }
+        }
+    }
+
+
+    #[inline(always)]
+    pub fn add_child(&mut self, parent: NodeRef, child: T) -> EditNodeResult {
+        let child = self.create_node(child);
+        self.add_child_ref(parent, child)
+    }
+
+
+    #[inline(always)]
+    /// Returns Some if the parent node exists, otherwise, returns None
+    pub fn add_child_ref(&mut self, parent: NodeRef, child: NodeRef) -> EditNodeResult {
+        if parent == self.root || self.get_node(parent).parents.len() > 0 {
+            self.add_parent(child, parent);
+            self.get_node_mut(parent).children.insert(child);
+            Ok(child)
+        } else {
+            Err(EditNodeError::NodeDeleted(parent))
+        }
+    }
+
+    #[inline(always)]
+    fn get_node_mut(&mut self, idx: NodeRef) -> &mut BiDirectionalTreeNode<T> {
+        &mut self.nodes[idx]
+    }
+
+    #[inline(always)]
+    pub fn get_node(&self, idx: NodeRef) -> &BiDirectionalTreeNode<T> {
+        &self.nodes[idx]
+    }
+
+    #[inline(always)]
+    fn add_parent(&mut self, child: NodeRef, parent: NodeRef) {
+        self.get_node_mut(child).parents.insert(parent);
+    }
+
+    fn create_node(&mut self, value: T) -> NodeRef {
+        self.nodes.push(BiDirectionalTreeNode {
+            value,
+            parents: HashSet::from([]),
+            children: HashSet::new()
+        });
+        self.nodes.len() - 1
+    }
+
+    pub fn get_children(&self, parent: NodeRef) -> Vec<&BiDirectionalTreeNode<T>> {
+        self.get_node_children(self.get_node(parent))
+    }
+
+    pub fn get_node_children(&self, parent: &BiDirectionalTreeNode<T>) -> Vec<&BiDirectionalTreeNode<T>> {
+        parent.children.iter()
+            .map(|&child| self.get_node(child))
+            .collect::<Vec<_>>()
+    }
+
+}
+
+impl<T : Clone> BiDirectionalTree<T> {
+    pub fn clone(&mut self, idx: NodeRef) -> NodeRef {
+        let cloned = self.get_node(idx).clone();
+        self.nodes.push(cloned);
+        let cloned_ref = self.nodes.len() - 1;
+        for existing_child in self.get_node(cloned_ref).children.clone() {
+            self.add_parent(existing_child, cloned_ref);
+        }
+        cloned_ref
+    }
+}
 
 pub type TreePath = Vec<usize>;
 
