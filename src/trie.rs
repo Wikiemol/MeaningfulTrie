@@ -29,10 +29,6 @@ pub struct Trie {
     root: TrieNodeRef
 }
 pub type TrieBuilder = BiDirectionalTree<_TrieNode>;
-// pub struct TrieBuilder {
-//     nodes: Vec<TrieNode>,
-//     root: TrieNodeRef
-// }
 
 pub struct VirtualTrieNode<'a> {
     nodes: &'a Vec<TrieNode>,
@@ -206,133 +202,11 @@ impl Trie {
         });
     }
 
-    // pub fn suffix(text: &str, max_depth: Option<usize>) -> Trie {
-    //     let mut trie = TrieBuilder::new(_TrieNode {
-    //         data: None,
-    //         count: 0,
-    //         max_depth: 0,
-    //     });
-    //     let root_pointer = TriePointer {
-    //         position: trie.root,
-    //         depth: 0
-    //     };
-    //     let mut current_positions: HashSet<TriePointer> = HashSet::new();
-    //     current_positions.insert(root_pointer);
-
-    //     for character in text.chars() {
-    //         let mut child_map: HashMap<Option<TrieNodeRef>, TrieNodeRef> = HashMap::new();
-    //         for parent_pointer in current_positions.clone() {
-    //             let TriePointer {position: parent_position, depth} = parent_pointer;
-    //             match trie.find_child(parent_position, character) {
-    //                 None => {
-    //                     match child_map.get(&None) {
-    //                         None => {
-    //                             let child_ref = trie.append_character(parent_position, character);
-    //                             let child_pointer = TriePointer {
-    //                                 position: child_ref,
-    //                                 depth: depth + 1
-    //                             };
-    //                             current_positions.insert(child_pointer);
-    //                             assert!(current_positions.remove(&parent_pointer));
-    //                             child_map.insert(None, child_ref);
-    //                         }
-    //                         Some(&child) => {
-    //                             // trie.add_parent(child, parent_position);
-    //                             trie.add_child_ref(parent_position, child);
-    //                             assert!(current_positions.remove(&parent_pointer));
-
-    //                             let child_pointer = TriePointer {
-    //                                 position: child,
-    //                                 depth: depth + 1
-    //                             };
-
-    //                             let existing_pointer = current_positions.get(&child_pointer);
-    //                             if child_pointer.depth >= existing_pointer.map(|p| p.depth).unwrap_or(0) {
-    //                                 trie.set_max_depth(child, child_pointer.depth);
-    //                                 current_positions.replace(child_pointer);
-    //                             }
-    //                         }
-    //                     };
-    //                 }
-    //                 Some(child) => {
-    //                     match child_map.get(&Some(child)) {
-    //                         None => {
-    //                             // Cannot just increment the count. 
-    //                             // Another string could have the same suffix trie as a child
-    //                             // but have been seen less often.
-    //                             let mut cloned_child = trie.get_value(child).clone();
-    //                             cloned_child.count += 1;
-
-    //                             let cloned_child = trie.replace_child(parent_position, child, cloned_child);
-    //                             let child_pointer = TriePointer {
-    //                                 position: cloned_child,
-    //                                 depth: depth + 1
-    //                             };
-    //                             trie.set_max_depth(cloned_child, child_pointer.depth);
-    //                             current_positions.insert(child_pointer);
-    //                             assert!(current_positions.remove(&parent_pointer));
-    //                             child_map.insert(Some(child), cloned_child);
-    //                         }
-    //                         Some(&existing_child) => {
-    //                             trie.replace_child_ref(parent_position, child, existing_child);
-    //                             let child_pointer = TriePointer {
-    //                                 position: existing_child,
-    //                                 depth: depth + 1
-    //                             };
-    //                             let existing_pointer = current_positions.get(&child_pointer);
-    //                             if child_pointer.depth >= existing_pointer.map(|p| p.depth).unwrap_or(0) {
-    //                                 trie.set_max_depth(existing_child, child_pointer.depth);
-    //                                 current_positions.replace(child_pointer);
-    //                             }
-    //                             assert!(current_positions.remove(&parent_pointer));
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         for pointer in current_positions.clone() {
-    //             let TriePointer {depth, ..} = pointer;
-    //             // println!("{}", depth);
-    //             if depth > max_depth.unwrap_or(usize::MAX) { current_positions.remove(&pointer); }
-    //         }
-    //         current_positions.insert(TriePointer {
-    //             position: trie.root,
-    //             depth: 0
-    //         });
-    //     }
-    //     trie.build()
-    // }
-
-    // fn builder() -> TrieBuilder {
-    //     let root = TrieNode {
-    //         data: None,
-    //         count: 0,
-    //         max_depth: 0,
-    //         parents: HashSet::new(),
-    //         children: HashSet::new()
-    //     };
-
-    //     TrieBuilder {
-    //         nodes: vec![root],
-    //         root: 0
-    //     }
-    // }
     
 
 }
 
 impl TrieBuilder {
-    // pub fn clone_node(&mut self, idx: TrieNodeRef) -> TrieNodeRef {
-    //     let mut clone = self.get_node(idx).clone();
-    //     self.nodes.push(clone);
-    //     return self.nodes.len() - 1;
-    // }
-
-    // pub fn create_node(&mut self, node: TrieNode) -> TrieNodeRef {
-    //     self.nodes.push(node);
-    //     self.nodes.len() - 1
-    // }
-    //
 
     /// Returns the corresponding character for the node,
     /// except in the case when it is the root node, in which case
@@ -368,26 +242,6 @@ impl TrieBuilder {
         self.get_value_mut(idx).count += 1;
     }
 
-    #[inline(always)]
-    // pub fn add_child(&mut self, parent: TrieNodeRef, child: TrieNodeRef) {
-    //     self.get_node_mut(parent).children.insert(child);
-    // }
-
-    // #[inline(always)]
-    // pub fn add_parent(&mut self, child: TrieNodeRef, parent: TrieNodeRef) {
-    //     self.get_node_mut(child).parents.insert(parent);
-    // }
-
-
-    // #[inline(always)]
-    // pub fn get_node_mut<'a>(&'a mut self, idx: TrieNodeRef) -> &'a mut TrieNode {
-    //     &mut self.nodes[idx]
-    // }
-
-    // #[inline(always)]
-    // pub fn get_node(&self, idx: TrieNodeRef) -> &TrieNode {
-    //     &self.nodes[idx]
-    // }
 
     pub fn set_max_depth(&mut self, idx: TrieNodeRef, max_depth: usize) {
         self.get_value_mut(idx).max_depth = max_depth;
@@ -400,10 +254,6 @@ impl TrieBuilder {
             .map(|&child| child)
     }
 
-    // #[inline(always)]
-    // pub fn remove_child(&mut self, parent: TrieNodeRef, child: TrieNodeRef) {
-    //     self.get_node_mut(parent).children.remove(&child);
-    // }
     
     pub fn replace_child_ref(&mut self, parent: TrieNodeRef, old_child: TrieNodeRef, new_child: TrieNodeRef) -> EditNodeResult {
         let result = self.add_child_ref(parent, new_child);
@@ -536,14 +386,6 @@ impl TrieBuilder {
         }
         trie
     }
-
-
-    // pub fn build(&self) -> Trie {
-    //     Trie {
-    //         nodes: Rc::new(self.nodes.iter().map(|node| Rc::new(node.clone())).collect::<Vec<_>>()),
-    //         root: self.root
-    //     }
-    // }
 }
 
 

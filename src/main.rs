@@ -22,7 +22,6 @@ mod display;
 fn main() {
     let test_file = "./heart_sutra.txt";
     // let test_file = "./is_you_is.txt";
-    // let test_file = "./Karandavyuha_Sutra.txt";
     // let test_file = "./tale_of_two_cities.txt";
     // let test_file = "./genesis.txt";
 
