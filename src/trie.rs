@@ -293,7 +293,6 @@ impl TrieBuilder {
                     None => {
                         match child_map.get(&None) {
                             None => {
-
                                 match trie.append_character(parent_position, character) {
                                     Ok(child_ref) => {
                                         let child_pointer = TriePointer {

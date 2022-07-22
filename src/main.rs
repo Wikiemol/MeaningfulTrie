@@ -3,7 +3,7 @@ extern crate ncurses;
 use crate::trie::TrieBuilder;
 use crate::display::window::UIContext;
 use crate::display::window::Window;
-use crate::display::trie::display_trie;
+use crate::display::trie::start_display;
 use crate::tree::LazyTreeZipper;
 use crate::display::*;
 use std::cmp::max;
@@ -35,6 +35,10 @@ fn main() {
     // let test_text = "test the test text".to_lowercase();
     // let test_text = "asasasasasasas".to_lowercase();
     // let test_text = "Is you, is or, is you ain't my baby, Maybe baby's found somebody new, Or is my baby still my baby true, Is you, is or, is you ain't my baby, The way you acting lately makes me down, Youse is still my baby, baby, Seems my flame in your heart's done gone out".to_lowercase();
+    //
+
+
+    let test_text = "welcome!";
 
 
     // string_to_trie(&test_text, Some(20)).borrow().print();
@@ -42,5 +46,5 @@ fn main() {
 
     // suffix_trie.print();
     let context: UIContext = Window::context().unwrap();
-    display_trie(context, suffix_trie);
+    start_display(context, suffix_trie);
 }

@@ -3,7 +3,7 @@ use std::ops::Add;
 use std::sync::atomic::{AtomicBool, Ordering};
 use ncurses::*;
 
-static initialized: AtomicBool = AtomicBool::new(false);
+static INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 #[derive(Clone, Copy)]
 pub struct Position {
@@ -75,10 +75,14 @@ pub enum BoundsResult {
     InBound
 }
 
+pub enum DrawerPosition {
+    BOTTOM
+}
+
 impl Window<'_> {
 
     pub fn context() -> Option<UIContext> {
-        let result = initialized.compare_exchange(false, true, Ordering::AcqRel, Ordering::Relaxed);
+        let result = INITIALIZED.compare_exchange(false, true, Ordering::AcqRel, Ordering::Relaxed);
         match result {
             Ok(_) => {
                 let result = Some(UIContext {
@@ -118,6 +122,33 @@ impl Window<'_> {
             context
         }
     }
+
+    pub fn create_drawer(&mut self, drawerPosition: DrawerPosition, size: i32) -> Window {
+        match drawerPosition {
+            BOTTOM => {
+                let window = _Window {
+                    bounding_box: CursesBox {
+                        x: 0,
+                        y: self.get_bounding_box().height - size,
+                        width: self.get_bounding_box().width,
+                        height: size
+                    },
+                    scroll: Position {
+                        x: 0, 
+                        y: 0
+                    }
+                };
+                self.get_context().windows.push(window);
+                Window {
+                    id: self.get_context().windows.len() - 1,
+                    context: self.get_context()
+                }
+            }
+        }
+
+    }
+
+
 
     fn absolute_to_window_relative(&self, absolute_pos: &Position) -> Position {
         *absolute_pos - self.get_absolute_position()

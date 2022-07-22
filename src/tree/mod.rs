@@ -156,6 +156,7 @@ impl<T: Clone> Clone for Tree<T> {
     }
 }
 
+
 pub struct LazyTree<T> {
     pub value: T, 
     children: Lazy<Vec<LazyTree<T>>>
@@ -193,6 +194,7 @@ impl<T> LazyTree<T> {
     }
 }
 
+
 pub struct LazyTreeZipper<T> {
     parent: Option<Box<LazyTreeZipper<T>>>,
     node: LazyTree<T>,
@@ -216,6 +218,8 @@ impl<T> LazyTreeZipper<T> {
         }
     }
 
+
+
     pub fn parent(self) -> Option<LazyTreeZipper<T>> {
         match self.parent {
             None => None,
@@ -228,6 +232,11 @@ impl<T> LazyTreeZipper<T> {
 
     pub fn number_of_children(&self) -> usize {
         self.node.children().len()
+    }
+    pub fn children(&self) -> Vec<&T> {
+        self.node.children().iter()
+            .map(|child| &child.value)
+            .collect::<Vec<_>>()
     }
 
     pub fn follow_path(self, path: &Vec<usize>) -> LazyTreeZipper<T> {
