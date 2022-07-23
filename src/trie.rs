@@ -1,11 +1,8 @@
 use crate::tree::EditNodeResult;
 use crate::tree::BiDirectionalTree;
-use crate::tree::EditNodeError;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::collections::HashSet;
-use std::rc::Rc;
-use std::cell::RefCell;
 
 pub type TrieNodeRef = usize;
 pub struct TrieNode {
@@ -24,25 +21,7 @@ pub struct _TrieNode {
 }
 
 
-pub struct Trie {
-    nodes: Rc<Vec<Rc<TrieNode>>>,
-    root: TrieNodeRef
-}
 pub type TrieBuilder = BiDirectionalTree<_TrieNode>;
-
-pub struct VirtualTrieNode<'a> {
-    nodes: &'a Vec<TrieNode>,
-    root: TrieNodeRef
-}
-
-impl Clone for Trie  {
-    fn clone(&self) -> Self { 
-        Trie {
-            nodes: self.nodes.clone(),
-            root: self.root
-        }
-    }
-}
 
 
 impl Clone for TrieNode {
@@ -57,155 +36,6 @@ impl Clone for TrieNode {
     }
 }
 
-struct PrintParamaters {
-    prefixes: Vec<String>, 
-    final_child: bool, 
-    print_prefix: bool, 
-    prev_max_depth: usize
-}
-
-impl Trie {
-
-    #[inline(always)]
-    pub fn get_nodes(&self, indices: impl IntoIterator<Item = TrieNodeRef>) -> Vec<Rc<TrieNode>> {
-        indices.into_iter().map(|trie_ref| self.get_node(trie_ref)).collect::<Vec<_>>()
-    }
-    #[inline(always)]
-    pub fn get_node(&self, idx: TrieNodeRef) -> Rc<TrieNode> {
-        self.nodes[idx].clone()
-    }
-    #[inline(always)]
-    pub fn get_root(&self ) -> Rc<TrieNode> {
-        self.get_node(self.root)
-    }
-    #[inline(always)]
-    pub fn text(&self) -> Option<char> {
-        self.get_node(self.root).data
-    }
-
-    #[inline(always)]
-    pub fn count(&self) -> usize {
-        self.get_node(self.root).count
-    }
-
-    #[inline(always)]
-    pub fn max_depth(&self) -> usize {
-        self.get_node(self.root).max_depth
-    }
-    #[inline(always)]
-    pub fn children(&self) -> Vec<Trie> {
-        self.get_root().children.
-            iter()
-            .map(|&child| Trie {
-                nodes: self.nodes.clone(),
-                root: child
-            })
-        .collect::<Vec<_>>()
-    }
-
-    #[inline(always)]
-    fn _children(&self) -> Vec<Rc<TrieNode>> {
-        self.get_nodes(self.get_root().children.clone())
-    }
-
-    #[inline(always)]
-    pub fn parents(&self) -> Vec<Rc<TrieNode>> {
-        self.get_nodes(self.get_root().parents.clone())
-    }
-
-
-    // fn _print(&self, prefixes: Vec<String>, final_child: bool, print_prefix: bool, prev_max_depth: usize) {
-    fn _print(&self, parameters: &PrintParamaters) {
-        let PrintParamaters {prefixes, print_prefix,  prev_max_depth, final_child} = parameters;
-        let chr = match self.text() {
-            None => "<root>".to_string(),
-            Some(chr) => chr.to_string()
-        };
-        let children = self._children();
-        let count = self.count();
-        let has_single_child = children.len() == 1 && children[0].count == count;
-        let max_depth = if has_single_child { *prev_max_depth } else { self.max_depth() };
-
-        print!("{}{}{}{}{}{}", 
-               if *print_prefix { prefixes.join("") } else { "".to_string() }, 
-               chr, 
-               if has_single_child { "" } else { ", "},  
-               if has_single_child { "".to_string() } else {  count.to_string() },
-               if has_single_child { "".to_string() } else {  "|".to_string() + &max_depth.to_string() },
-               if has_single_child { "" } else { "\n" });
-
-
-        let new_prefix: Vec<String> = 
-            if !print_prefix || prefixes.len() == 0 {
-                prefixes.to_vec()
-            } else {
-                let mut a = prefixes[0..(prefixes.len() - 1)].to_vec();
-                a.push(
-                    prefixes[prefixes.len() - 1]
-                        .chars()
-                        .filter(|&c| c == '\t')
-                        .flat_map(|_| if *final_child {
-                                "\t".chars()
-                            } else {
-                                "│\t".chars()
-                            }
-                        )
-                        .collect::<String>()
-                );
-                a
-            };
-
-        let mut i = 0;
-        for &child in &self.get_root().children {
-            if i < self._children().len() - 1 {
-                let mut child_prefix = new_prefix.clone();
-                if !has_single_child {
-                    child_prefix.push("├──────\t".to_string());
-                }
-                let trie = Trie {
-                    nodes: self.nodes.clone(),
-                    root: child
-                };
-                trie._print(&PrintParamaters { 
-                    prefixes: child_prefix, 
-                    final_child: false, 
-                    print_prefix: !has_single_child, 
-                    prev_max_depth: self.max_depth()
-                });
-            } else {
-                let mut child_prefix = new_prefix.clone();
-                if !has_single_child {
-                    child_prefix.push("└──────\t".to_string());
-                }
-                let trie = Trie {
-                    nodes: self.nodes.clone(),
-                    root: child
-                };
-                trie._print(&PrintParamaters {
-                    prefixes: child_prefix, 
-                    final_child: true, 
-                    print_prefix: !has_single_child, 
-                    prev_max_depth: max_depth
-                });
-            }
-            i += 1;
-        }
-
-    }
-
-    pub fn print(&self) {
-        self._print(&PrintParamaters {
-            prefixes: vec!["".to_string()], 
-            final_child: true, 
-            print_prefix: false, 
-            prev_max_depth: 0
-        });
-    }
-
-    
-
-}
-
 impl TrieBuilder {
 
     /// Returns the corresponding character for the node,
@@ -216,26 +46,6 @@ impl TrieBuilder {
            .map(|x| x.to_string())
            .unwrap_or("".to_string())
     }
-
-    // pub fn get_parents(&self, node_ref: TrieNodeRef) -> Vec<String> {
-    //     let node = self.get_node(node_ref);
-
-    //     let grand_parents: Vec<String> = node.parents
-    //         .iter()
-    //             .flat_map(|&parent| 
-    //               self.get_parents(parent)
-    //                 .into_iter()
-    //                     .map(|string|  string + &self.get_string(parent) + &parent.to_string())
-    //                 .collect::<Vec<String>>()
-    //             )
-    //         .collect();
-
-    //     if grand_parents.len() == 0 {
-    //         vec!["".to_string()]
-    //     } else {
-    //         grand_parents
-    //     }
-    // }
 
     #[inline(always)]
     pub fn increment_count(&mut self, idx: TrieNodeRef) {

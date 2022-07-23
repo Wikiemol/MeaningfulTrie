@@ -18,8 +18,6 @@ use crate::Rc;
 use crate::LazyTreeZipper;
 use ncurses::*;
 
-use crate::trie::Trie;
-
 use crate::tree::LazyTree;
 
 #[derive(Clone, Debug)]
