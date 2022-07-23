@@ -11,7 +11,6 @@ use std::rc::Rc;
 use ncurses::*;
 use std::fs;
 mod trie;
-use trie::Trie;
 mod lazy;
 mod tree;
 use crate::tree::LazyTree;
@@ -38,13 +37,27 @@ fn main() {
     //
 
 
-    let test_text = "welcome!";
+    // let test_text = "welcome!";
 
 
     // string_to_trie(&test_text, Some(20)).borrow().print();
     let suffix_trie = TrieBuilder::suffix(&test_text, Some(100));
+    // debug_trie(&suffix_trie, suffix_trie.root);
+    // suffix_trie.get_children(suffix_trie.root);
+    // suffix_trie.get_parents(suffix_trie.root);
+
+    // suffix_trie.print();
 
     // suffix_trie.print();
     let context: UIContext = Window::context().unwrap();
     start_display(context, suffix_trie);
+}
+
+fn debug_trie(trie: &TrieBuilder, node: usize) {
+
+    let node = trie.get_node(node);
+    println!("Parent len: {}", node.parents.len());
+    for child in &node.children {
+        debug_trie(trie, *child);
+    }
 }

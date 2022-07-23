@@ -110,9 +110,18 @@ impl<T> BiDirectionalTree<T> {
         self.get_node_children(self.get_node(parent))
     }
 
+    pub fn get_parents(&self, child: NodeRef) -> Vec<&BiDirectionalTreeNode<T>> {
+        self.get_node_parents(self.get_node(child))
+    }
+
     pub fn get_node_children(&self, parent: &BiDirectionalTreeNode<T>) -> Vec<&BiDirectionalTreeNode<T>> {
         parent.children.iter()
             .map(|&child| self.get_node(child))
+            .collect::<Vec<_>>()
+    }
+    pub fn get_node_parents(&self, child: &BiDirectionalTreeNode<T>) -> Vec<&BiDirectionalTreeNode<T>> {
+        child.parents.iter()
+            .map(|&parent| self.get_node(parent))
             .collect::<Vec<_>>()
     }
 

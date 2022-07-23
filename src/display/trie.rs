@@ -57,6 +57,34 @@ struct UIState {
     command_buffer: String,
     display_meaningfulness: bool
 }    
+
+pub fn start_display(mut context: UIContext, trie: BiDirectionalTree<_TrieNode>) -> Option<i32> {
+    let mut window = Window::new(&mut context);
+
+    let mut ui_state = UIState::new(trie);
+
+    loop {
+        ui_state = ui_state.select_node();
+        display_ui(&mut window, &ui_state);
+
+        window.get_context().refresh();
+
+        match ui_state.mode {
+            UIMode::TrieNavigation => {
+                ui_state = handle_trie_navigation_mode(ui_state);
+            },
+            UIMode::Command => {
+                ui_state = handle_command_mode(ui_state);
+            }
+            UIMode::FileExplorer(_)  => {
+                ui_state = handle_file_explorer_mode(ui_state);
+            }
+
+        }
+        clear();
+    }
+}
+
 fn clamp(i: usize, min: usize, max: usize) -> usize {
     if i < min { min } else if i > max { max } else { i }
 }
@@ -107,9 +135,19 @@ impl UIState {
                 text,
                 count: trie.get_value(node_ref).count,
                 max_depth: trie.get_value(node_ref).max_depth,
-                // parents: node.parents.iter().map(|x| x.to_string()).collect()
+                parents: node
+                    .parents
+                    .iter()
+                    .map(|parent| trie
+                         .get_node(*parent)
+                         .value
+                         .data
+                         .map(|data| data.to_string())
+                         .unwrap_or("<root>".to_string())
+                    )
+                    .collect()
                 // parents: trie.get_parents(node_ref)
-                parents: vec![]
+                // parents: vec![]
             },
             Rc::new(
                               move || children
@@ -265,32 +303,6 @@ struct TextBox {
     bounding_box: CursesBox
 }
 
-pub fn start_display(mut context: UIContext, trie: BiDirectionalTree<_TrieNode>) -> Option<i32> {
-    let mut window = Window::new(&mut context);
-
-    let mut ui_state = UIState::new(trie);
-
-    loop {
-        ui_state = ui_state.select_node();
-        display_ui(&mut window, &ui_state);
-
-        window.get_context().refresh();
-
-        match ui_state.mode {
-            UIMode::TrieNavigation => {
-                ui_state = handle_trie_navigation_mode(ui_state);
-            },
-            UIMode::Command => {
-                ui_state = handle_command_mode(ui_state);
-            }
-            UIMode::FileExplorer(_)  => {
-                ui_state = handle_file_explorer_mode(ui_state);
-            }
-
-        }
-        clear();
-    }
-}
 
 
 fn handle_trie_navigation_mode(ui_state: UIState) -> UIState {

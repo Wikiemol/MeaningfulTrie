@@ -217,25 +217,25 @@ impl TrieBuilder {
            .unwrap_or("".to_string())
     }
 
-    pub fn get_parents(&self, node_ref: TrieNodeRef) -> Vec<String> {
-        let node = self.get_node(node_ref);
+    // pub fn get_parents(&self, node_ref: TrieNodeRef) -> Vec<String> {
+    //     let node = self.get_node(node_ref);
 
-        let grand_parents: Vec<String> = node.parents
-            .iter()
-                .flat_map(|&parent| 
-                  self.get_parents(parent)
-                    .into_iter()
-                        .map(|string|  string + &self.get_string(parent) + &parent.to_string())
-                    .collect::<Vec<String>>()
-                )
-            .collect();
+    //     let grand_parents: Vec<String> = node.parents
+    //         .iter()
+    //             .flat_map(|&parent| 
+    //               self.get_parents(parent)
+    //                 .into_iter()
+    //                     .map(|string|  string + &self.get_string(parent) + &parent.to_string())
+    //                 .collect::<Vec<String>>()
+    //             )
+    //         .collect();
 
-        if grand_parents.len() == 0 {
-            vec!["".to_string()]
-        } else {
-            grand_parents
-        }
-    }
+    //     if grand_parents.len() == 0 {
+    //         vec!["".to_string()]
+    //     } else {
+    //         grand_parents
+    //     }
+    // }
 
     #[inline(always)]
     pub fn increment_count(&mut self, idx: TrieNodeRef) {
@@ -271,7 +271,12 @@ impl TrieBuilder {
     }
 
 
-    /// Creates a suffix tree from the given input string.
+    /// Creates a suffix trie from the given input string.
+    ///
+    /// This suffix trie has some unique properties though.
+    /// It stores on each node the number of occurences of the string up until that point
+    /// It also stores the maximum depth that that particular subtree is found in the tree
+    /// It also stores the ids of the parents of all nodes
     pub fn suffix(text: &str, max_depth: Option<usize>) -> TrieBuilder {
         let mut trie = TrieBuilder::new(_TrieNode {
             data: None,
