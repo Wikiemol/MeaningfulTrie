@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::trie::TrieNodeRef;
 use crate::tree::BiDirectionalTree;
 use crate::trie::_TrieNode;
-use crate::trie::TrieBuilder;
+use crate::trie::Trie;
 use crate::display::window::UIContext;
 use crate::display::window::Window;
 use crate::display::window::DrawerPosition;
@@ -100,7 +100,7 @@ enum MoveForwardResult {
 
 
 impl UIState {
-    pub fn new(trie: TrieBuilder) -> UIState {
+    pub fn new(trie: Trie) -> UIState {
         let root = trie.root;
         UIState {
             tree: UIState::new_tree(Rc::new(trie), root, true),
@@ -111,7 +111,7 @@ impl UIState {
         }
     }
 
-    fn new_tree(trie: Rc<TrieBuilder>, node_ref: TrieNodeRef, selected: bool) -> UITree {
+    fn new_tree(trie: Rc<Trie>, node_ref: TrieNodeRef, selected: bool) -> UITree {
 
         let node = trie.get_node(node_ref);
         let mut children = node.children.iter().map(|&x| x).collect::<Vec<_>>();
@@ -424,7 +424,7 @@ fn handle_file_explorer_mode(ui_state: UIState) -> UIState {
                     .replace("\n", "\\n")
                     // .replace(" ", "xn");
                     .to_lowercase();
-                ui_state = UIState::new(TrieBuilder::suffix(&file_text, Some(100)));
+                ui_state = UIState::new(Trie::suffix(&file_text, Some(100)));
             }
 
         }

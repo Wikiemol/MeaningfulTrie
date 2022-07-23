@@ -1,6 +1,6 @@
 
 extern crate ncurses;
-use crate::trie::TrieBuilder;
+use crate::trie::Trie;
 use crate::display::window::UIContext;
 use crate::display::window::Window;
 use crate::display::trie::start_display;
@@ -41,7 +41,7 @@ fn main() {
 
 
     // string_to_trie(&test_text, Some(20)).borrow().print();
-    let suffix_trie = TrieBuilder::suffix(&test_text, Some(100));
+    let suffix_trie = Trie::suffix(&test_text, Some(100));
     // debug_trie(&suffix_trie, suffix_trie.root);
     // suffix_trie.get_children(suffix_trie.root);
     // suffix_trie.get_parents(suffix_trie.root);
@@ -53,7 +53,7 @@ fn main() {
     start_display(context, suffix_trie);
 }
 
-fn debug_trie(trie: &TrieBuilder, node: usize) {
+fn debug_trie(trie: &Trie, node: usize) {
 
     let node = trie.get_node(node);
     println!("Parent len: {}", node.parents.len());

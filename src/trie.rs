@@ -21,7 +21,7 @@ pub struct _TrieNode {
 }
 
 
-pub type TrieBuilder = BiDirectionalTree<_TrieNode>;
+pub type Trie = BiDirectionalTree<_TrieNode>;
 
 
 impl Clone for TrieNode {
@@ -36,7 +36,7 @@ impl Clone for TrieNode {
     }
 }
 
-impl TrieBuilder {
+impl Trie {
 
     /// Returns the corresponding character for the node,
     /// except in the case when it is the root node, in which case
@@ -87,8 +87,8 @@ impl TrieBuilder {
     /// It stores on each node the number of occurences of the string up until that point
     /// It also stores the maximum depth that that particular subtree is found in the tree
     /// It also stores the ids of the parents of all nodes
-    pub fn suffix(text: &str, max_depth: Option<usize>) -> TrieBuilder {
-        let mut trie = TrieBuilder::new(_TrieNode {
+    pub fn suffix(text: &str, max_depth: Option<usize>) -> Trie {
+        let mut trie = Trie::new(_TrieNode {
             data: None,
             count: 0,
             max_depth: 0,
