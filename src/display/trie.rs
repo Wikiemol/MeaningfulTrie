@@ -19,15 +19,17 @@ use crate::LazyTreeZipper;
 use ncurses::*;
 
 use crate::tree::LazyTree;
+use crate::lazy::Lazy;
 
-#[derive(Clone, Debug)]
+#[derive(Clone )]
 struct UIStateNode {
     selected: bool,
     expanded: bool,
     text: String,
+    original_refs: Vec<TrieNodeRef>,
     count:  usize,
     max_depth: usize,
-    parents: Vec<String>
+    longest_path: Vec<TrieNodeRef>
 }
 
 type UITree = LazyTree<UIStateNode>;
@@ -117,11 +119,13 @@ impl UIState {
         let mut children = node.children.iter().map(|&x| x).collect::<Vec<_>>();
         children.sort_unstable_by(|&a, &b| trie.get_value(b).count.cmp(&trie.get_value(a).count));
         let mut text = trie.get_value(node_ref).data.map(|c| c.to_string()).unwrap_or("<root>".to_string());
+        let mut original_refs = vec![node_ref];
         let mut last = children.iter().last().map(|&l| trie.get_node(l));
         
         while children.len() == 1 && last.unwrap().value.count == trie.get_value(node_ref).count {
             let child = &last.unwrap();
             text += &child.value.data.unwrap().to_string();
+            original_refs.push(*children.iter().last().unwrap());
             children = child.children.iter().map(|&x| x).collect::<Vec<_>>();
             last = children.iter().last().map(|&l| trie.get_node(l));
         }
@@ -131,19 +135,20 @@ impl UIState {
                 selected,
                 expanded: false,
                 text,
+                original_refs,
                 count: trie.get_value(node_ref).count,
                 max_depth: trie.get_value(node_ref).max_depth,
-                parents: node
-                    .parents
-                    .iter()
-                    .map(|parent| trie
-                         .get_node(*parent)
-                         .value
-                         .data
-                         .map(|data| data.to_string())
-                         .unwrap_or("<root>".to_string())
-                    )
-                    .collect()
+                longest_path: trie.find_longest_path_to_node(node_ref),
+                    // .parents
+                    // .iter()
+                    // .map(|parent| trie
+                    //      .get_node(*parent)
+                    //      .value
+                    //      .data
+                    //      .map(|data| data.to_string())
+                    //      .unwrap_or("<root>".to_string())
+                    // )
+                    // .collect()
                 // parents: trie.get_parents(node_ref)
                 // parents: vec![]
             },
@@ -153,6 +158,52 @@ impl UIState {
                                          .map(|child| (UIState::new_tree(trie.clone(), *child, false)))
                                          .collect::<Vec<_>>()
             ))
+    }
+
+    pub fn move_to_longest_path(mut self) -> Self {
+        let longest_path = self.longest_path_to_selected();
+        self.selected_node = longest_path.clone();
+        self.move_to_path(&longest_path)
+    }
+
+    fn longest_path_to_selected(&self) -> TreePath {
+        let mut ref_path = self.get_selected_tree().value.longest_path.clone();
+        ref_path.reverse();
+        let mut result = vec![];
+
+        let mut current_tree = &self.tree;
+        loop {
+            let head_option = ref_path.pop();
+            match head_option {
+                Some(head) => {
+                    if !current_tree.value.original_refs.contains(&head) {
+                        let (index, child) = current_tree.children()
+                            .iter()
+                            .enumerate()
+                            .find(|(_, child)| 
+                                  child
+                                  .value
+                                  .original_refs
+                                  .contains(&head)
+                            )
+                            .unwrap_or_else(|| panic!("Invalid state searching for ref  {} in char {}", 
+                                                      head, 
+                                                      current_tree.value.text
+                                                )
+                            );
+                        result.push(index);
+
+                        current_tree = child;
+                    } else {
+                        continue;
+                    }
+                }
+                None => { break; }
+            }
+        }
+        result
+        // self.root;
+        // self.selected_node.
     }
 
 
@@ -216,6 +267,19 @@ impl UIState {
             }
         }
     }
+
+    pub fn move_to_path(mut self, path: &TreePath) -> Self {
+        let mut state_zipper = LazyTreeZipper::new(self.tree);
+        for idx in path {
+            state_zipper = state_zipper.child(*idx);
+            let mut node = state_zipper.value().clone();
+            node.expanded = true;
+            state_zipper.replace(node);
+        }
+        self.tree = state_zipper.build();
+        self
+    }
+
 
     fn get_selected_tree(&self) -> &UITree {
         let mut child = &self.tree;
@@ -334,6 +398,9 @@ fn handle_trie_navigation_mode(ui_state: UIState) -> UIState {
             }
             'k' => {
                 ui_state.move_up();
+            }
+            '\t' => {
+                ui_state = ui_state.move_to_longest_path();
             }
             ':' | ';' => {
                 ui_state.set_mode(UIMode::Command);
@@ -549,24 +616,24 @@ fn render(state: &UIState, ui_tree: &UITree, y: i32, x: i32) -> Tree<TextBox> {
             "".to_string() 
         }
     );
-    text += &ui_tree.value.parents
-        .iter()
-        // .filter(|s| s.starts_with('0'))
-        .map(|s| "'".to_string() + s + "'")
-        .collect::<Vec<_>>().join(" : ");
+    // text += &ui_tree.value.parents
+    //     .iter()
+    //     // .filter(|s| s.starts_with('0'))
+    //     .map(|s| "'".to_string() + s + "'")
+    //     .collect::<Vec<_>>().join(" : ");
 
-    let mut duplicates: HashMap<String, usize> = HashMap::new();
-    let mut has_duplicate = false;
-    for parent in ui_tree.value.parents.iter() {
-        let value = duplicates
-            .entry(parent.clone())
-            .and_modify(|v| *v += 1)
-            .or_insert(1);
-        if *value > 1 {
-            has_duplicate = true;
-            break;
-        }
-    }
+    // let mut duplicates: HashMap<String, usize> = HashMap::new();
+    // let mut has_duplicate = false;
+    // for parent in ui_tree.value.parents.iter() {
+    //     let value = duplicates
+    //         .entry(parent.clone())
+    //         .and_modify(|v| *v += 1)
+    //         .or_insert(1);
+    //     if *value > 1 {
+    //         has_duplicate = true;
+    //         break;
+    //     }
+    // }
     // text += &state.value.parents.len().to_string();
     // text += &(has_duplicate.to_string());
 

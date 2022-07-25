@@ -12,7 +12,7 @@ pub struct BiDirectionalTreeNode<T> {
 }
 
 pub struct BiDirectionalTree<T> {
-    nodes: Vec<BiDirectionalTreeNode<T>>,
+    pub nodes: Vec<BiDirectionalTreeNode<T>>,
     reference_counts: HashMap<NodeRef, usize>,
     pub root: NodeRef
 }
@@ -53,7 +53,7 @@ impl<T> BiDirectionalTree<T> {
     pub fn remove_child(&mut self, parent: NodeRef, child: NodeRef) {
         self.get_node_mut(parent).children.remove(&child);
         let child_node = self.get_node_mut(child);
-        child_node.parents.remove(&parent);
+        assert!(child_node.parents.remove(&parent));
 
         if child_node.parents.len() == 0 {
             for grand_child in child_node.children.clone() {
@@ -129,7 +129,8 @@ impl<T> BiDirectionalTree<T> {
 
 impl<T : Clone> BiDirectionalTree<T> {
     pub fn clone(&mut self, idx: NodeRef) -> NodeRef {
-        let cloned = self.get_node(idx).clone();
+        let mut cloned = self.get_node(idx).clone();
+        cloned.parents = HashSet::new();
         self.nodes.push(cloned);
         let cloned_ref = self.nodes.len() - 1;
         for existing_child in self.get_node(cloned_ref).children.clone() {

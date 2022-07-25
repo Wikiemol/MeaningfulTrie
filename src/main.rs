@@ -37,12 +37,16 @@ fn main() {
     //
 
 
-    // let test_text = "welcome!";
+    // let test_text = "Body is nothing more than emptiness,";
 
 
     // string_to_trie(&test_text, Some(20)).borrow().print();
     let suffix_trie = Trie::suffix(&test_text, Some(100));
-    // debug_trie(&suffix_trie, suffix_trie.root);
+    suffix_trie.debug();
+
+    // let mut s = "".to_string();
+    // std::io::stdin().read_line(&mut s);
+    
     // suffix_trie.get_children(suffix_trie.root);
     // suffix_trie.get_parents(suffix_trie.root);
 
@@ -53,11 +57,15 @@ fn main() {
     start_display(context, suffix_trie);
 }
 
-fn debug_trie(trie: &Trie, node: usize) {
+// fn debug_trie(trie: &Trie, node_ref: usize) {
 
-    let node = trie.get_node(node);
-    println!("Parent len: {}", node.parents.len());
-    for child in &node.children {
-        debug_trie(trie, *child);
-    }
-}
+//     for node in trie.nodes {
+
+//         println!("Ref: {}, Value: {},\tParents: {:<10},\tChildren: {:<10}", 
+//                  node_ref, 
+//                  node.value.data.map(|x| x.to_string()).unwrap_or("<root>".to_string()), 
+//                  format!("{:?}", node.parents),
+//                  format!("{:?}", node.children)
+//         );
+//     }
+// }

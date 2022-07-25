@@ -62,6 +62,7 @@ impl<'a, V, T: 'a> DerivedLazy<'a, V, T> {
 
 
 
+// #[derive(Clone )]
 pub struct Lazy<T> {
     t:  UnsafeCell<Option<T>>,
     supplier: LazySupplier<T>
