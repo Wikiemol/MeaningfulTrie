@@ -1,9 +1,9 @@
 
 extern crate ncurses;
+use crate::display::trie::render::start_display;
 use crate::trie::Trie;
 use crate::display::window::UIContext;
 use crate::display::window::Window;
-use crate::display::trie::start_display;
 use crate::tree::LazyTreeZipper;
 use crate::display::*;
 use std::cmp::max;

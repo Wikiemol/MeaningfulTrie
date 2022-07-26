@@ -1,3 +1,4 @@
+use crate::tree::Tree;
 use std::ops::Sub;
 use std::ops::Add;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -294,5 +295,38 @@ impl Window<'_> {
         dimensions
     }
 
+}
+
+pub struct TextBox {
+    pub text_attributes: Vec<attr_t>,
+    pub text: String,
+    pub bounding_box: CursesBox
+}
+
+pub fn display_box_tree(window: &Window, tree: &Tree<TextBox>) {
+    // display_curses_box(window, &tree.value.box_);
+    let y = tree.value.bounding_box.y;
+    let x = tree.value.bounding_box.x;
+    let last_y = tree.children.last().map(|child| child.value.bounding_box.y).unwrap_or(y) ;
+    let last_x = tree.children.last().map(|child| child.value.bounding_box.x).unwrap_or(x) ;
+    window.vertical_line(y, last_y, x);
+    window.addch(&Position { y: last_y, x }, ACS_LLCORNER());
+    window.horizontal_line(last_y, x + 1, last_x);
+
+    for (i, child) in tree.children.iter().enumerate() {
+        if i == tree.children.len() - 1 { break };
+        window.addch(&Position {
+            y: child.value.bounding_box.y,
+            x
+        }, ACS_LTEE());
+        window.horizontal_line(child.value.bounding_box.y, x + 1, last_x);
+    }
+
+    for &attribute in tree.value.text_attributes.iter() { attron(attribute); }
+    window.addstr(&Position { y, x }, &tree.value.text);
+    for &attribute in tree.value.text_attributes.iter() { attroff(attribute); }
+    for child in tree.children.iter() {
+        display_box_tree(window, &child);
+    }
 }
 
