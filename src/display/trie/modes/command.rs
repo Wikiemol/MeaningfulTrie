@@ -17,6 +17,9 @@ pub fn handle_command_mode(ui_state: UIState) -> UIState {
             '\n' => {
                 ui_state = ui_state.execute_command();
             },
+            '\x1B' => {
+                ui_state.set_mode(UIMode::TrieNavigation);
+            }
             // Delete
             '\x7F' => {
                 if ui_state.command_buffer.len() > 0 {

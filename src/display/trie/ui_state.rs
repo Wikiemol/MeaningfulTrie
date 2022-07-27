@@ -74,6 +74,7 @@ impl UIState {
             text += &child.value.data.unwrap().to_string();
             original_refs.push(*children.iter().last().unwrap());
             children = child.children.iter().map(|&x| x).collect::<Vec<_>>();
+
             last = children.iter().last().map(|&l| trie.get_node(l));
         }
 

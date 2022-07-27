@@ -1,7 +1,7 @@
 
 extern crate ncurses;
 use ncurses::*;
-use crate::trie::_TrieNode;
+use crate::trie::TrieNode;
 use crate::tree::BiDirectionalTree;
 use crate::Window;
 use crate::UIContext;
@@ -9,7 +9,7 @@ use crate::UIContext;
 use crate::display::trie::ui_state::*;
 use crate::display::trie::modes::*;
 
-pub fn start_display(mut context: UIContext, trie: BiDirectionalTree<_TrieNode>) -> Option<i32> {
+pub fn start_display(mut context: UIContext, trie: BiDirectionalTree<TrieNode>) -> Option<i32> {
     let mut window = Window::new(&mut context);
 
     let mut ui_state = UIState::new(trie);

@@ -7,36 +7,18 @@ use std::hash::Hash;
 use std::collections::HashSet;
 
 pub type TrieNodeRef = usize;
-pub struct TrieNode {
-    data: Option<char>, 
-    count: usize,
-    max_depth: usize,
-    parents: HashSet<TrieNodeRef>,
-    children: HashSet<TrieNodeRef>,
-}
 
 #[derive(Clone)]
-pub struct _TrieNode {
+pub struct TrieNode {
     pub data: Option<char>, 
     pub count: usize,
     pub max_depth: usize,
 }
 
 
-pub type Trie = BiDirectionalTree<_TrieNode>;
+pub type Trie = BiDirectionalTree<TrieNode>;
 
 
-impl Clone for TrieNode {
-    fn clone(&self) -> Self {
-        TrieNode {
-            data: self.data,
-            count: self.count,
-            max_depth: self.max_depth,
-            parents: HashSet::new(),
-            children: self.children.clone()
-        }
-    }
-}
 
 
 impl Trie {
@@ -89,7 +71,7 @@ impl Trie {
     }
 
     pub fn append_character(&mut self, idx: TrieNodeRef, character: char) -> EditNodeResult {
-        let child = _TrieNode {
+        let child = TrieNode {
             data: Some(character),
             count: 1,
             max_depth: self.get_value(idx).max_depth + 1
@@ -138,7 +120,7 @@ impl Trie {
     /// It also stores the maximum depth that that particular subtree is found in the tree
     /// It also stores the ids of the parents of all nodes
     pub fn suffix(text: &str, max_depth: Option<usize>) -> Trie {
-        let mut trie = Trie::new(_TrieNode {
+        let mut trie = Trie::new(TrieNode {
             data: None,
             count: 0,
             max_depth: 0,
@@ -195,7 +177,7 @@ impl Trie {
                                             current_positions.replace(child_pointer);
                                         }
                                     }
-                                    Err(EditNodeError::NodeDeleted(parent)) => {}
+                                    Err(EditNodeError::NodeDeleted(_)) => {}
                                 }
                             }
                         };
