@@ -54,9 +54,6 @@ In the other direction, when you see a phrase like 'omplete', the 'max depth' in
 
 If you take the ratio  of the meaningfulness of a phrase in a specific document to the meaningfulness of that phrase over all documents, this is the 'relative meaningfulness' of that phrase. The relative meaningfulness of the phrase is how descriptive that phrase is of the document. 
 
-
-Storing the parents of the trie allow you to quickly travel to the 'longest meaningfulness phrase' containing that substring. This is what pressing tab does.
-
 Images
 ------------
 
