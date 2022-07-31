@@ -136,10 +136,18 @@ impl Trie {
         let mut current_positions: HashSet<TriePointer> = HashSet::new();
         current_positions.insert(root_pointer);
 
+        let mut i = 0;
         for character in text.chars() {
             let mut child_map: HashMap<Option<TrieNodeRef>, TrieNodeRef> = HashMap::new();
             // println!("=========================================");
-            for parent_pointer in current_positions.clone() {
+
+            // println!("{} {}", i, current_positions.len());
+            i += 1;
+            let mut current_positions_sorted = current_positions.clone().into_iter().collect::<Vec<_>>();
+            current_positions_sorted.sort();
+            current_positions_sorted = current_positions_sorted.into_iter().rev().collect();
+
+            for parent_pointer in current_positions_sorted {
 
                 let TriePointer {position: parent_position, depth} = parent_pointer;
                 match trie.find_child(parent_position, character) {
