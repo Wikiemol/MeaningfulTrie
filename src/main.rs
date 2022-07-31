@@ -25,24 +25,15 @@ mod display;
 
 fn main() {
 
-    // let test_text = "Welcome!";
-    let test_file = "./Quantum.txt";
-
-    let test_text = fs::read_to_string(test_file)
-     .expect("Unable to read file")
-     .replace("\n", "\\n")
-     // .replace(" ", "xn");
-     .to_lowercase();
+    let test_text = "Welcome!";
 
 
-    // println!("Length: {}", test_text.len());
-
-    let suffix_trie = Trie::suffix(&test_text, Some(100));
+    let suffix_trie = Trie::suffix(test_text, Some(100));
                                    
-    // suffix_trie.debug();
+    suffix_trie.debug();
 
 
-    // let context: UIContext = Window::context().unwrap();
-    // start_display(context, suffix_trie);
+    let context: UIContext = Window::context().unwrap();
+    start_display(context, suffix_trie);
 }
 
