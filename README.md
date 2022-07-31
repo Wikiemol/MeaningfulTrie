@@ -39,8 +39,8 @@ Commands
 
 To type a command, type `:<command>`
 
-- `:load` load a file from the file system
-- `:meaning` display meaningfulness of all nodes
+- [`:load`](https://github.com/Wikiemol/MeaningfulTrie#load-command) load a file from the file system
+- [`:meaning`](https://github.com/Wikiemol/MeaningfulTrie#meaningfulness) display meaningfulness of all nodes
 
 
 Theory
