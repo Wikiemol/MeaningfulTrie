@@ -13,7 +13,11 @@ use rand::distributions::{Alphanumeric, Uniform, Standard};
 use trie::trie::Trie;
 
 
-fn from_elem(c: &mut Criterion) {
+/// TODO: This benchmark could be improved by generating
+/// strings with more structure. E.g. generating strings
+/// from a markov chain or a context free grammar 
+/// Curently it just generates a uniformly random string
+fn suffix(c: &mut Criterion) {
     static KB: usize = 1024;
 
     let mut group = c.benchmark_group("suffix_trie");
@@ -32,5 +36,5 @@ fn from_elem(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, from_elem);
+criterion_group!(benches, suffix);
 criterion_main!(benches);
