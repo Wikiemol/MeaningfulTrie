@@ -58,6 +58,8 @@ Storing the parents of the trie allow you to quickly travel to the 'longest mean
 Images
 ------------
 
-- Load command ![](./images/load.gif)
-- Meaningfulness ![](./images/meaningfulness.gif)
-- Tab navigation ![](./images/Tab.gif)
+### Load command 
+![](./images/load.gif)
+### Meaningfulness 
+![](./images/meaningfulness.gif)
+### Tab navigation ![](./images/Tab.gif)
