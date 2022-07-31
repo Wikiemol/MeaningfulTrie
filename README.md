@@ -54,3 +54,10 @@ If you take the ratio  of the meaningfulness of a phrase in a specific document 
 
 
 Storing the parents of the trie allow you to quickly travel to the 'longest meaningfulness phrase' containing that substring. This is what pressing tab does.
+
+Images
+------------
+
+- Load command ![](./images/load.gif)
+- Meaningfulness ![](./images/meaningfulness.gif)
+- Tab navigation ![](./images/Tab.gif)
