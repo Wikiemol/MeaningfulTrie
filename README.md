@@ -48,9 +48,11 @@ Theory
 
 If `l` is the depth of the node, and `f` is the frequency, then `l * log(f)` is defined to be the 'meaningfulness' of that string. The meaningfulness roughly tells you how 'important' the string is. 
 
-High meaningfulness corresponds to the 'completeness' of a phrase. E.g. the string 'complet' is less meaningful than the string 'complete'. Because complete, is, well... complete. Moreover, when you go from the phrase 'complete '.
+High meaningfulness corresponds to the 'completeness' of a phrase. E.g. the string 'complet' is less meaningful than the string 'complete'. Because complete, is, well... complete. Moreover, when you go further than a complete phrase the meaningfulness drops. So this allows for an algorithm that finds complete words and phrases without prior knowledge of a given language, purely through information theory.
 
-If you take the ratio  of the meaningfulness of a phrase in a specific document to the meaningfulness of that phrase over all documents, this is the 'relative meaningfulness' of that phrase. The relative meaningfulness of the phrase is how descriptive that phrase is of the document.
+In the other direction, when you see a phrase like 'omplete', the 'max depth' in the trie will be higher than its actual depth. So you can detect that this phrase is not complete in this way, and travel to its maximum depth parent. This is what [pressing tab](#tab-navigation) does.
+
+If you take the ratio  of the meaningfulness of a phrase in a specific document to the meaningfulness of that phrase over all documents, this is the 'relative meaningfulness' of that phrase. The relative meaningfulness of the phrase is how descriptive that phrase is of the document. 
 
 
 Storing the parents of the trie allow you to quickly travel to the 'longest meaningfulness phrase' containing that substring. This is what pressing tab does.
@@ -62,4 +64,5 @@ Images
 ![](./images/load.gif)
 ### Meaningfulness 
 ![](./images/meaningfulness.gif)
-### Tab navigation ![](./images/Tab.gif)
+### Tab navigation 
+![](./images/Tab.gif)
