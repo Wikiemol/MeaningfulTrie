@@ -17,7 +17,7 @@ Running the project
 
 It is a Rust cargo project. Once you have rust and cargo installed, simply clone the repository, and run 
 
-`cargo install`
+`cargo build`
 
 then 
 
