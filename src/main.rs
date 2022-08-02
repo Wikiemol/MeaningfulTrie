@@ -1,5 +1,6 @@
 
 extern crate ncurses;
+use ::trie::config::configure;
 use crate::display::trie::render::start_display;
 use crate::trie::Trie;
 use crate::display::window::UIContext;
@@ -11,6 +12,9 @@ use std::rc::Rc;
 use ncurses::*;
 use std::fs;
 
+
+
+
 use rand::{self, Rng};
 use rand::distributions::{Alphanumeric, Uniform, Standard};
 
@@ -21,9 +25,11 @@ use crate::tree::LazyTree;
 
 mod display;
 
-
-
 fn main() {
+
+    configure();
+
+
 
     let test_text = "Welcome!";
 
@@ -35,5 +41,6 @@ fn main() {
 
     let context: UIContext = Window::context().unwrap();
     start_display(context, suffix_trie);
+    endwin();
 }
 

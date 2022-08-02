@@ -30,10 +30,14 @@ pub fn start_display(mut context: UIContext, trie: BiDirectionalTree<TrieNode>) 
             UIMode::FileExplorer(_)  => {
                 ui_state = file_explorer::handle_file_explorer_mode(ui_state);
             }
+            UIMode::Exit => {
+                break;
+            }
 
         }
         clear();
     }
+    Some(0)
 }
 
 fn display_ui(window: &mut Window, state: &UIState) {

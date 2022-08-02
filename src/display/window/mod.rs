@@ -1,3 +1,4 @@
+use crate::fs::File;
 use crate::tree::Tree;
 use std::ops::Sub;
 use std::ops::Add;
@@ -77,7 +78,8 @@ pub enum BoundsResult {
 }
 
 pub enum DrawerPosition {
-    BOTTOM
+    Top,
+    Bottom
 }
 
 impl Window<'_> {
@@ -124,9 +126,35 @@ impl Window<'_> {
         }
     }
 
-    pub fn create_drawer(&mut self, drawerPosition: DrawerPosition, size: i32) -> Window {
-        match drawerPosition {
-            BOTTOM => {
+
+
+    pub fn delete(&mut self) {
+        let id = self.id;
+        self.get_context().windows.remove(id);
+    }
+
+    pub fn create_drawer(&mut self, drawer_position: DrawerPosition, size: i32) -> Window {
+        match drawer_position {
+            DrawerPosition::Top => {
+                let window = _Window {
+                    bounding_box: CursesBox {
+                        x: 0,
+                        y: 0,
+                        width: self.get_bounding_box().width,
+                        height: size
+                    },
+                    scroll: Position {
+                        x: 0, 
+                        y: 0
+                    }
+                };
+                self.get_context().windows.push(window);
+                Window {
+                    id: self.get_context().windows.len() - 1,
+                    context: self.get_context()
+                }
+            }
+            DrawerPosition::Bottom => {
                 let window = _Window {
                     bounding_box: CursesBox {
                         x: 0,
@@ -140,6 +168,8 @@ impl Window<'_> {
                     }
                 };
                 self.get_context().windows.push(window);
+
+
                 Window {
                     id: self.get_context().windows.len() - 1,
                     context: self.get_context()

@@ -141,7 +141,7 @@ impl Trie {
             let mut child_map: HashMap<Option<TrieNodeRef>, TrieNodeRef> = HashMap::new();
             // println!("=========================================");
 
-            // println!("{} {}", i, current_positions.len());
+            println!("{} {}", i, current_positions.len());
             i += 1;
             let mut current_positions_sorted = current_positions.clone().into_iter().collect::<Vec<_>>();
             current_positions_sorted.sort();

@@ -1,4 +1,5 @@
 extern crate ncurses;
+use crate::window::DrawerPosition;
 use crate::window::Position;
 use crate::Window;
 use crate::window::display_box_tree;
@@ -69,28 +70,6 @@ fn create_dom(state: &UIState, ui_tree: &UITree, y: i32, x: i32) -> Tree<TextBox
             "".to_string() 
         }
     );
-    // text += &ui_tree.value.parents
-    //     .iter()
-    //     // .filter(|s| s.starts_with('0'))
-    //     .map(|s| "'".to_string() + s + "'")
-    //     .collect::<Vec<_>>().join(" : ");
-
-    // let mut duplicates: HashMap<String, usize> = HashMap::new();
-    // let mut has_duplicate = false;
-    // for parent in ui_tree.value.parents.iter() {
-    //     let value = duplicates
-    //         .entry(parent.clone())
-    //         .and_modify(|v| *v += 1)
-    //         .or_insert(1);
-    //     if *value > 1 {
-    //         has_duplicate = true;
-    //         break;
-    //     }
-    // }
-    // text += &state.value.parents.len().to_string();
-    // text += &(has_duplicate.to_string());
-
-    // text += &((state.value.count as f64).log2() * (state.value.max_depth as f64)).to_string();
 
     if ui_tree.value.expanded {
         let mut children = vec![];
@@ -146,6 +125,8 @@ pub fn display_trie(window: &mut Window, state: &UIState) {
         x: selected_box.bounding_box.x,
         y: selected_box.bounding_box.y,
     });
+
+    // let window: Window = window.create_drawer(DrawerPosition::TOP, 2);
     display_box_tree(window, &dom);
 }
 

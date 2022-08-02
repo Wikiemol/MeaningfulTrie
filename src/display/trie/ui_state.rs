@@ -24,7 +24,8 @@ pub type UITree = LazyTree<UIStateNode>;
 pub enum UIMode {
     FileExplorer(FileExplorerState),
     TrieNavigation, 
-    Command
+    Command,
+    Exit
 }
 
 pub struct FileExplorerState {
@@ -281,46 +282,9 @@ impl UIState {
         self.mode = mode;
     }
 
-    pub fn execute_command(self) -> Self {
-        let command_buffer = self.command_buffer.trim().to_uppercase();
-        let mut ui_state = self;
-        match command_buffer.as_str() {
-            "MEANING" => {
-                ui_state.display_meaningfulness = !ui_state.display_meaningfulness;
-                ui_state.set_mode(UIMode::TrieNavigation);
-                ui_state
-            }
-            "LOAD" => {
-                ui_state.set_mode(UIMode::FileExplorer(FileExplorerState {
-                    files: LazyTreeZipper::new(create_file_tree(".".to_string())),
-                    hovered_file: 0
-                }));
-                ui_state
-            }
-            _ => {
-                ui_state.set_mode(UIMode::TrieNavigation);
-                ui_state
-            }
-        }
-    }
 
 }
 
-fn create_file_tree(folder_path: String) -> LazyTree<String> {
-
-    let tree: LazyTree<String> = LazyTree::new(folder_path.clone(), Rc::new(move || 
-                fs::read_dir(folder_path.clone()).unwrap()
-                    .map(|path_result| 
-                        {
-                            create_file_tree(path_result.unwrap().path().into_os_string().into_string().unwrap())
-                        }
-                    )
-                    .collect::<Vec<_>>()
-        )
-    );
-    tree
-    
-}
 pub fn clamp(i: usize, min: usize, max: usize) -> usize {
     if i < min { min } else if i > max { max } else { i }
 }
