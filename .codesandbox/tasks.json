@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "cargo run": {
+      "name": "Start Running application",
+      "command": "cargo run",
+      "runAtStart": true
+    }
+  }
+}
